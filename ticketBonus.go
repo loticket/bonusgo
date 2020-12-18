@@ -148,6 +148,50 @@ func (tb *TicketBonus) CreateBonus(alg string) error {
 }
 
 /**
+ * @name:计算一张票的奖金
+ * @msg:计算单注奖金，可以设定完成开奖号码，和开奖级别处理以后，通过设置不同的ticket计算同期号的所有奖金
+ * @param bonusOpen 开奖号码数组 []string{红球字符串，篮球字符串}(可调用 FormateOpenNum()函数获取)
+ * @param bonusLevel 开奖信息  map[string][]int map[红球个数_篮球个数_开奖方式][]int{奖级，奖金}(可调用 BonusLevelFormate()函数)
+ * @return: int64 税前金额  int64 税后金额  int 是否是大额奖金  []int 中奖注数 string 票的唯一标示
+ */
+func (tb *TicketBonus) CalculatePrize(ticket Ticket, bonusOpen []string, bonusLevel map[string][]int) TicketCalResult {
+	//格式化中奖
+	var taxBeforeMoneyAll int64 = 0 //税前金额
+	var taxAfterMoneyAll int64 = 0  //税后金额
+	var maxlevels int = tb.lotteryBonus.GetmaxLervel()
+	var levels []int = make([]int, maxlevels) //中奖注数
+	var big int = 0
+	//获取拆票信息
+	var ticketAll []string = tb.lotteryBonus.SplitTicket(ticket)
+
+	for i := 0; i < len(ticketAll); i++ {
+		grad, money := tb.lotteryBonus.Calculation(ticket.PlayType, ticketAll[i], bonusOpen[0], bonusOpen[1], bonusLevel)
+		if grad == 0 {
+			continue
+		}
+		taxBeforeMoneyAll += int64(money * ticket.Multiple)
+		big = 2
+		if grad < 3 && money > 1000000 {
+			taxAfterMoneyAll += int64((money * 8 / 10) * ticket.Multiple)
+			big = 1
+		} else {
+			taxAfterMoneyAll += int64(money * ticket.Multiple)
+		}
+
+		levels[grad-1]++
+	}
+
+	return TicketCalResult{
+		TaxBeforeMoneyAll: taxBeforeMoneyAll,
+		TaxAfterMoneyAll:  taxAfterMoneyAll,
+		Big:               big,
+		Levels:            levels,
+		Tid:               ticket.Tid,
+	}
+
+}
+
+/**
  * @name:付值彩种信息
  * @msg:付值彩种信息
  * @param ticket Ticket
@@ -192,7 +236,7 @@ func (tb *TicketBonus) BonusOpen() ([]string, error) {
  * @param openNum 开奖号码  level 开奖等级奖金
  * @return: nil
  */
-func (tb *TicketBonus) CalculatePrize(ticket Ticket, bonusOpen []string, bonusLevel map[string][]int) TicketCalResult {
+/*func (tb *TicketBonus) CalculatePrize(ticket Ticket, bonusOpen []string, bonusLevel map[string][]int) TicketCalResult {
 	tbm, tam, big, le, tid := tb.lotteryBonus.CalculatePrize(ticket, bonusOpen, bonusLevel)
 	return TicketCalResult{
 		TaxBeforeMoneyAll: tbm,
@@ -201,7 +245,7 @@ func (tb *TicketBonus) CalculatePrize(ticket Ticket, bonusOpen []string, bonusLe
 		Levels:            le,
 		Tid:               tid,
 	}
-}
+}*/
 
 /**
  * @name:付值彩种信息

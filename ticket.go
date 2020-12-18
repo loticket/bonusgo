@@ -20,14 +20,16 @@ type OpenBonus struct {
 
 //每一个彩种计算奖金的接口，都必须要实现此接口
 type LotteryBonusInterface interface {
-	SetTicket(Ticket)                                                                     //票信息
-	SetOpenBonus(string)                                                                  //string 开奖号码
-	SetBonusMoney([]int)                                                                  //[]int 为每个等级的奖金
-	GetBonusMoney() []Bonus                                                               //获取奖金数组
-	FormateOpenNum() ([]string, error)                                                    //格式化开奖号码
-	BonusLevelFormate() map[string][]int                                                  //格式化开奖级别信息
-	CalculatePrize(Ticket, []string, map[string][]int) (int64, int64, int, []int, string) //计算奖金并返回
-	SplitTicket(Ticket) []string                                                          //拆票
+	SetTicket(Ticket)                    //票信息
+	SetOpenBonus(string)                 //string 开奖号码
+	SetBonusMoney([]int)                 //[]int 为每个等级的奖金
+	GetBonusMoney() []Bonus              //获取奖金数组
+	FormateOpenNum() ([]string, error)   //格式化开奖号码
+	BonusLevelFormate() map[string][]int //格式化开奖级别信息
+	//CalculatePrize(Ticket, []string, map[string][]int) (int64, int64, int, []int, string) //计算奖金并返回
+	Calculation(int, string, string, string, map[string][]int) (int, int)
+	SplitTicket(Ticket) []string //拆票
+	GetmaxLervel() int
 }
 
 //中奖级别定义

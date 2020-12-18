@@ -6,11 +6,12 @@ import (
 )
 
 type BaseBonus struct {
-	openNum  string  //开奖号码
-	ticket   Ticket  //票详情
-	bonus    []Bonus //奖级别数组
-	redBall  NumBall //红球个数
-	blueBall NumBall //篮球个数
+	openNum   string  //开奖号码
+	ticket    Ticket  //票详情
+	bonus     []Bonus //奖级别数组
+	redBall   NumBall //红球个数
+	blueBall  NumBall //篮球个数
+	maxLervel int
 }
 
 //传票进入
@@ -43,6 +44,10 @@ func (bonus *BaseBonus) SetBonusMoney(money []int) {
  */
 func (bonus *BaseBonus) GetBonusMoney() []Bonus {
 	return bonus.bonus
+}
+
+func (bonus *BaseBonus) GetmaxLervel() int {
+	return bonus.maxLervel
 }
 
 /**

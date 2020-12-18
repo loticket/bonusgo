@@ -12,48 +12,12 @@ type BonusDlt struct {
 }
 
 /**
- * @name:计算一张票的奖金
- * @msg:计算单注奖金，可以设定完成开奖号码，和开奖级别处理以后，通过设置不同的ticket计算同期号的所有奖金
- * @param bonusOpen 开奖号码数组 []string{红球字符串，篮球字符串}(可调用 FormateOpenNum()函数获取)
- * @param bonusLevel 开奖信息  map[string][]int map[红球个数_篮球个数_开奖方式][]int{奖级，奖金}(可调用 BonusLevelFormate()函数)
- * @return: int64 税前金额  int64 税后金额  int 是否是大额奖金  []int 中奖注数 string 票的唯一标示
- */
-func (bonus *BonusDlt) CalculatePrize(ticket Ticket, bonusOpen []string, bonusLevel map[string][]int) (int64, int64, int, []int, string) {
-	//格式化中奖
-	var taxBeforeMoneyAll int64 = 0                     //税前金额
-	var taxAfterMoneyAll int64 = 0                      //税后金额
-	var levels []int = []int{0, 0, 0, 0, 0, 0, 0, 0, 0} //中奖注数
-	var big int = 0
-	//获取拆票信息
-	var ticketAll []string = bonus.SplitTicket(ticket)
-
-	for i := 0; i < len(ticketAll); i++ {
-		grad, money := bonus.calculation(ticket.PlayType, ticketAll[i], bonusOpen[0], bonusOpen[1], bonusLevel)
-		if grad == 0 {
-			continue
-		}
-		taxBeforeMoneyAll += int64(money * ticket.Multiple)
-		big = 2
-		if grad < 3 && money > 1000000 {
-			taxAfterMoneyAll += int64((money * 8 / 10) * ticket.Multiple)
-			big = 1
-		} else {
-			taxAfterMoneyAll += int64(money * ticket.Multiple)
-		}
-
-		levels[grad-1]++
-	}
-
-	return taxBeforeMoneyAll, taxAfterMoneyAll, big, levels, ticket.Tid
-}
-
-/**
  * @name:计算单注奖金
  * @msg:计算单注奖金
  * @param playType 投注方式 1:普通  2 追加 lotNum 投注号码  bonusRedBall 开奖红球字符串 bonusBlueBall 篮球字符串 bonusLevel 格式化完成的奖级与开奖金额映射
  * @return: int 中奖金额 int 中奖级别
  */
-func (bonus *BonusDlt) calculation(playType int, lotNum string, bonusRedBall string, bonusBlueBall string, bonusLevel map[string][]int) (int, int) {
+func (bonus *BonusDlt) Calculation(playType int, lotNum string, bonusRedBall string, bonusBlueBall string, bonusLevel map[string][]int) (int, int) {
 	var allBall []string = strings.Split(lotNum, "-")
 	var redBall []string = strings.Split(allBall[0], ",")
 	var blueBall []string = strings.Split(allBall[1], ",")
@@ -295,8 +259,9 @@ func NewBonusDlt() LotteryBonusInterface {
 				Bonus{Grade: 9, Redball: 2, BlueBall: 1, Monye: 500, Types: 1},
 				Bonus{Grade: 9, Redball: 0, BlueBall: 2, Monye: 500, Types: 1},
 			},
-			redBall:  NumBall{Min: 5, Max: 35},
-			blueBall: NumBall{Min: 2, Max: 12},
+			redBall:   NumBall{Min: 5, Max: 35},
+			blueBall:  NumBall{Min: 2, Max: 12},
+			maxLervel: 9,
 		},
 	}
 }
