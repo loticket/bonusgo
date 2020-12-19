@@ -4,7 +4,7 @@
 
 #### 双色球为例子计算奖金
 
-```
+```golang
 package main
 
 import (
